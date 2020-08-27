@@ -44,16 +44,19 @@ void app_main(void)
     //be sure to do the init before using ADC1.
     printf("ADC1_init...\n");
     adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten( ADC1_EXAMPLE_CHANNEL, ADC_ATTEN_0db );
+    // adc1_config_channel_atten( ADC1_EXAMPLE_CHANNEL, ADC_ATTEN_0db );
+    adc1_config_channel_atten( ADC1_EXAMPLE_CHANNEL, ADC_ATTEN_DB_11 );
 
     vTaskDelay(2 * portTICK_PERIOD_MS);
 
     printf("start conversion.\n");
 
     while(1) {
-        dac_output_voltage( DAC_EXAMPLE_CHANNEL, output_data++ );
+
+        dac_output_voltage( DAC_EXAMPLE_CHANNEL, output_data );
         current_value = adc1_get_raw( ADC1_EXAMPLE_CHANNEL);
-        printf("%d\n", current_value );
+        printf("%d %d\n", output_data, current_value );
+        output_data++;
 
         vTaskDelay( 2 * portTICK_PERIOD_MS );
     }
