@@ -19,9 +19,6 @@
 #define DAC_EXAMPLE_CHANNEL     CONFIG_EXAMPLE_DAC_CHANNEL
 #define ADC1_EXAMPLE_CHANNEL    CONFIG_EXAMPLE_ADC1_CHANNEL
 
-// DAC on Pin 25 -- IO25
-// ADC on Pin 27 -- IO27
-
 
 void app_main(void)
 {
