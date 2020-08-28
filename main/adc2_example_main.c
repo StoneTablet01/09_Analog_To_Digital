@@ -28,6 +28,10 @@ void app_main(void)
     uint8_t output_data=0;
     int current_value=0;
     esp_err_t r;
+    float dac_output_vdc=0; //DAC output volts DC (0-3.3 VDC)
+    float adc_input_vdc=0; // ADC input volts DC (0 - ESP32 supply voltage)
+    int span_percent=0; // full span of 3.3VC = 100
+    char span[4] = "";
 
     gpio_num_t adc_gpio_num, dac_gpio_num;
 
@@ -50,12 +54,21 @@ void app_main(void)
     vTaskDelay(2 * portTICK_PERIOD_MS);
 
     printf("start conversion.\n");
+    printf("  DAC Count    DAC VDC  ADC Count    ADC VDC   Span PCT\n");
 
     while(1) {
 
         dac_output_voltage( DAC_EXAMPLE_CHANNEL, output_data );
         current_value = adc1_get_raw( ADC1_EXAMPLE_CHANNEL);
-        printf("%d %d\n", output_data, current_value );
+
+        dac_output_vdc = output_data * 0.01289063;  // 3.3 divided by 256
+        adc_input_vdc = current_value * 0.000952; // 3.9 divided by 4096
+        span_percent = (int) (adc_input_vdc*30.3);
+        sprintf(span,"%3d", span_percent);
+
+        printf("%11d %10.2f %10d %10.2f %10d %10c %10c %10c %10c\n", output_data, dac_output_vdc,
+        current_value, adc_input_vdc, span_percent, span[0], span[1], span[2], span[3]);
+
         output_data++;
 
         vTaskDelay( 2 * portTICK_PERIOD_MS );
