@@ -64,7 +64,7 @@ float adc_measured_voltage1(int adc_measured_counts){
     return adc_input_vdc;
 }
 
-int input_span_pct(int adc_measured_counts){
+int span_pct_integer(int adc_measured_counts){
   int span_percent;
   span_percent = (int) (adc_measured_voltage1(adc_measured_counts)*30.3);
   if (span_percent < 0){
@@ -75,6 +75,11 @@ int input_span_pct(int adc_measured_counts){
     }
   }
   return span_percent;
+}
+
+void span_pct_string(int adc_measured_counts, char *span){
+    sprintf(span,"%3d", span_pct_integer(adc_measured_counts));
+    return;
 }
 
 void app_main(void)
@@ -90,18 +95,22 @@ void app_main(void)
     vTaskDelay(2 * portTICK_PERIOD_MS);
 
     ESP_LOGI(tag, "start conversion.\n");
-    ESP_LOGI(tag, "  DAC Count    DAC VDC  ADC Count    ADC VDC   Span PCT\n");
+    printf("  DAC Count    DAC VDC  ADC Count    ADC VDC   Span PCT"
+    "   Digit[0]   Digit[1]   Digit[2]\n");
 
     while(1) {
 
         dac_output_voltage( DAC_EXAMPLE_CHANNEL, dac_set_point );
         adc_measured_counts = adc1_get_raw( ADC1_EXAMPLE_CHANNEL);
 
-
-        sprintf(span,"%3d", input_span_pct(adc_measured_counts));
-
-        printf("%11d %10.2f %10d %10.2f %10d %10c %10c %10c %10c\n", dac_set_point, dac_set_voltage(dac_set_point),
-        adc_measured_counts, adc_measured_voltage1(adc_measured_counts), input_span_pct(adc_measured_counts), span[0], span[1], span[2], span[3]);
+        span_pct_string(adc_measured_counts,span);
+        printf("%11d %10.2f %10d %10.2f %10d %10c %10c %10c\n",
+        dac_set_point, // 0 to 256 is the input range of the DAC
+        dac_set_voltage(dac_set_point), //Calculated output voltage from the DAC
+        adc_measured_counts, // input counts measured by ADC range is 0 to 4096
+        adc_measured_voltage1(adc_measured_counts), //Calculated ADC voltage
+        span_pct_integer(adc_measured_counts), //Span (0-100) recorded by ADC integer
+        span[0], span[1], span[2]); //Span (0-100) recorded by ADC as string
 
         dac_set_point++;
 
